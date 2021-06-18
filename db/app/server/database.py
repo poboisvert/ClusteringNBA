@@ -28,10 +28,10 @@ def player_helper(player) -> dict:
 # Retrieve all players present in the database
 
 
-async def retrieve_players():
+async def retrieve_allplayers():
     players = []
-    async for student in players_collection.find():
-        players.append(player_helper(student))
+    async for player in players_collection.find():
+        players.append(player_helper(player))
     return players
 
 # Retrieve a players with a matching ID
@@ -45,7 +45,7 @@ async def retrieve_player(id: str) -> dict:
 # Add a new players into to the database
 
 
-async def add_dataset():
+async def add_dataset(filename):
     # Push all dataset to MongoDB
     # player = await players_collection.insert_one(student_data)
     # new_player = await players_collection.find_one({"_id": player.inserted_id})
@@ -58,5 +58,5 @@ async def add_dataset():
 
     # Push to Mongo
     #player = 1
-    players_collection.insert_many(csv_to_json('datasets/finalized_data.csv'))
+    players_collection.insert_many(csv_to_json(filename))
     return
