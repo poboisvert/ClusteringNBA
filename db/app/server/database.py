@@ -136,7 +136,7 @@ async def clean_dataset():
     clean_df = collection_nba_df.drop(columns=[
         'GS', 'Pos', 'position', 'year_end', 'college', 'birth_date', 'name', ])
 
-    #
+    # Drop
     b_df = pd.DataFrame(columns=clean_df.columns)
 
     for index, row in clean_df.iterrows():
