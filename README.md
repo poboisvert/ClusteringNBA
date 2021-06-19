@@ -45,7 +45,7 @@ The analysis will aim to provide insight on the following questions:
 
 > use players
 
-> db.nba_collection.find()
+> db.Cleaned_Dataset.find()
 
 ### Database Integration
 

@@ -28,7 +28,6 @@ def player_helper(player) -> dict:
         "Age": player["Age"],
         "G": player["G"],
         "MP": player["MP"],
-        "PER": player["PER"],
         "TS_rel": float(player["TS_rel"]),
         "treePAr": float(player["treePAr"]),
         "FTr": float(player["FTr"]),
@@ -113,14 +112,17 @@ async def add_dataset(filename):
     return filename
 
 
-async def clean_dataset():
+async def clean_dataset(filepath):
 
     # Connection to DB
     #collection_conn = db['Season_Dataset']
     #collection_cursor = collection_conn.find()
     #collection_nba_df = pd.DataFrame(list(collection_cursor))
-    file_path = 'datasets/SeasonsDataRaw.csv'
-    collection_nba_df = pd.read_csv(file_path)
+    # file_path = 'datasets/SeasonsDataRaw.csv'
+    if filepath is None:
+        return
+
+    collection_nba_df = pd.read_csv(filepath)
     # First drop columns
     clean_df = collection_nba_df.drop(
         columns=['GS', 'Pos', 'position', 'year_end', 'college', 'birth_date', 'name'])
@@ -161,5 +163,5 @@ async def clean_dataset():
     b_df.to_csv('datasets/SeasonsDataCleaned.csv', index=False)
 
     # print(collection_pandas_df)
-    print('Max Pain 1.01 Completed - Cleaned')
-    return b_df
+    print(' === Max Pain 1.01 Completed - Cleaned === ')
+    return 'datasets/SeasonsDataCleaned.csv'
