@@ -3,8 +3,9 @@ from fastapi.encoders import jsonable_encoder
 
 from app.server.database import (
     add_dataset,
+    clean_dataset,
     retrieve_player,
-    retrieve_players,
+    retrieve_allplayers,
 )
 from app.server.models.nba import (
     ErrorResponseModel,
@@ -15,9 +16,45 @@ from app.server.models.nba import (
 router = APIRouter()
 
 
-@router.get("/add_dataset", response_description="Dataset data added into the database")
-async def add_stream_data():
-    # stream = jsonable_encoder(stream)
+@router.post("/etl/add", response_description="Dataset data added into the database")
+async def dataset(filename='datasets/SeasonsDataRaw.csv'):
+
     # Call add_dataset
-    confirm = await add_dataset()
-    return {"message": "Dataset is alive"}
+    # generic = await add_dataset('datasets/PlayerDataRaw.csv')
+
+    # Import the generic statistics for all seasons
+    custom = await add_dataset(filename)
+
+    # Clean the first import and save it as a new file
+    if filename == 'datasets/SeasonsDataRaw.csv':
+        await clean_dataset()
+        custom = await add_dataset('datasets/SeasonsDataCleaned.csv')
+
+    return {custom, "Dataset is in MongoDB"}
+
+# ETL
+
+
+@ router.get("/etl/clean", response_description="All players retreived from the database")
+async def cleaning():
+    await clean_dataset()
+    return {"Dataset is cleaned"}
+
+
+@ router.get("/players/all", response_description="All players retreived from the database")
+async def get_players_data():
+    allplayers = await retrieve_allplayers()
+    return ResponseModel(allplayers, "All players fetch successfully.")
+
+
+@ router.get("/players/{id}", response_description="All players retreived from the database")
+async def get_players_data(id):
+    player = await retrieve_player(id)
+    return ResponseModel(player, "Player fetch successfully.")
+ # Machine Learning
+
+
+@ router.get("/ml/{id}", response_description="All players retreived from the database")
+async def get_players_data(id):
+    player = await retrieve_player(id)
+    return ResponseModel(player, "Player fetch successfully.")
