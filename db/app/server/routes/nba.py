@@ -27,8 +27,8 @@ async def dataset(filename='datasets/SeasonsDataRaw.csv'):
 
     # Clean the first import and save it as a new file
     if filename == 'datasets/SeasonsDataRaw.csv':
-        await clean_dataset()
         custom = await add_dataset('datasets/SeasonsDataCleaned.csv')
+        await clean_dataset()
 
     return {custom, "Dataset is in MongoDB"}
 

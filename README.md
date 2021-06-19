@@ -31,7 +31,7 @@ The analysis will aim to provide insight on the following questions:
 
 > pip install -r requirements.txt
 
-> cd db && export PYTHONPATH=$PWD
+> export PYTHONPATH=$PWD
 
 ### FastAPI - Backend
 
@@ -45,7 +45,11 @@ The analysis will aim to provide insight on the following questions:
 
 > use players
 
-> db.nba_collection.find()
+> show collections
+
+> db.Player_Dataset.find()
+
+> db.Season_Dataset.find()
 
 ### Database Integration
 

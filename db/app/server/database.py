@@ -139,6 +139,7 @@ async def clean_dataset():
     # Drop
     b_df = pd.DataFrame(columns=clean_df.columns)
 
+    # Matching on Player and year_born players DataFrame
     for index, row in clean_df.iterrows():
         subset = clean_df[(clean_df["Year"] == row["Year"]) & (
             clean_df["Player"] == row["Player"]) & (clean_df["year_born"] == row["year_born"])]
@@ -147,6 +148,7 @@ async def clean_dataset():
         elif subset[subset["Tm"] == "TOT"].index[0] not in b_df.index:
             b_df = b_df.append(subset[subset["Tm"] == "TOT"])
 
+    # Converting height from feets to cm
     b_df["Status"] = (b_df["Year"] - b_df["year_start"] + 1)
 
     # Seperate feet and inches and convert all measurments to inches
@@ -160,10 +162,12 @@ async def clean_dataset():
     b_df = b_df.drop(columns=['Tm', 'height', 'feet', 'inch',
                               'blanl', 'blank2', 'FG_rel', 'treeP_rel', 'twoP_rel', 'FT_rel'], axis=1)
 
+    #   Business rule
     b_df = b_df[b_df["G"] > 10]
 
     # Export to csv
     b_df.to_csv('datasets/SeasonsDataCleaned.csv', index=False)
 
     # print(collection_pandas_df)
+    print('Max Pain 1.01 Completed - Cleaned')
     return b_df
