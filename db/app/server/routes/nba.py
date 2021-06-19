@@ -16,8 +16,8 @@ from app.server.models.nba import (
 router = APIRouter()
 
 
-@router.post("/etl/add", response_description="Dataset data added into the database")
-async def dataset(filename='datasets/SeasonsDataRaw.csv'):
+@router.post("/etl/load", response_description="Dataset data added into the database")
+async def dataset(filename='datasets/SeasonsDataCleaned.csv'):
 
     # Call add_dataset
     # generic = await add_dataset('datasets/PlayerDataRaw.csv')
@@ -26,16 +26,15 @@ async def dataset(filename='datasets/SeasonsDataRaw.csv'):
     custom = await add_dataset(filename)
 
     # Clean the first import and save it as a new file
-    if filename == 'datasets/SeasonsDataRaw.csv':
+    if filename == 'datasets/SeasonsDataCleaned.csv':
         custom = await add_dataset('datasets/SeasonsDataCleaned.csv')
-        await clean_dataset()
 
     return {custom, "Dataset is in MongoDB"}
 
 # ETL
 
 
-@ router.get("/etl/clean", response_description="All players retreived from the database")
+@ router.get("/etl/transform", response_description="All players retreived from the database")
 async def cleaning():
     await clean_dataset()
     return {"Dataset is cleaned"}

@@ -26,63 +26,46 @@ def player_helper(player) -> dict:
         "Year": player["Year"],
         "Player": player["Player"],
         "Age": player["Age"],
-        "Tm": player["Tm"],
         "G": player["G"],
-        # "GS": player["GS"],
         "MP": player["MP"],
         "PER": player["PER"],
-        # "TS_rel": player["TS_rel"],
-        # "treePAr": player["treePAr"],
-        # "FTr": player["FTr"],
-        # "ORB_rel": player["ORB_rel"],
-        # "DRB_rel": player["DRB_rel"],
-        # "TRB_rel": player["TRB_rel"],
-        # "AST_rel": player["AST_rel"],
-        # "STL_rel": player["STL_rel"],
-        # "BLK_rel": player["BLK_rel"],
-        # "TOV_rel": player["TOV_rel"],
-        # "USG_rel": player["USG_rel"],
-        # "blanl": player["blanl"],
-        # "OWS": player["OWS"],
-        # "DWS": player["DWS"],
-        # "WS": player["WS"],
-        # "WSon48": player["WSon48"],
-        # "blank2": player["blank2"],
-        # "OBPM": player["OBPM"],
-        # "DBPM": player["DBPM"],
-        # "BPM": player["BPM"],
-        # "VORP": player["VORP"],
-        "FG": player["FG"],
-        # "FGA": player["FGA"],
-        # "FG_rel": player["FG_rel"],
-        # "treeP": player["treeP"],
-        # "treePA": player["treePA"],
-        # "treeP_rel": player["treeP_rel"],
-        # "twoP": player["twoP"],
-        # "twoPA": player["twoPA"],
-        # "twoP_rel": player["twoP_rel"],
-        # "eFG_rel": player["eFG_rel"],
-        "FT": player["FT"],
-        # "FTA": player["FTA"],
-        # "FT_rel": player["FT_rel"],
-        "ORB": player["ORB"],
-        "DRB": player["DRB"],
-        "TRB": player["TRB"],
-        "AST": player["AST"],
-        "STL": player["STL"],
-        "BLK": player["BLK"],
-        "TOV": player["TOV"],
-        "PF": player["PF"],
-        "PTS": player["PTS"],
-        # "name": player["name"],
-        "year_start": player["year_start"],
-        # "year_end": player["year_end"],
-        # "position": player["position"],
-        # "height": player["height"],
-        "weight": player["weight"],
-        # "birth_date": player["birth_date"],
-        # "college": player["college"],
-        "year_born": player["year_born"],
+        "TS_rel": float(player["TS_rel"]),
+        "treePAr": float(player["treePAr"]),
+        "FTr": float(player["FTr"]),
+        "ORB_rel": float(player["ORB_rel"]),
+        "DRB_rel": float(player["DRB_rel"]),
+        "TRB_rel": float(player["TRB_rel"]),
+        "AST_rel": float(player["AST_rel"]),
+        "STL_rel": float(player["STL_rel"]),
+        "BLK_rel": float(player["BLK_rel"]),
+        "TOV_rel": float(player["TOV_rel"]),
+        "USG_rel": float(player["USG_rel"]),
+        "OWS": float(player["OWS"]),
+        "DWS": float(player["DWS"]),
+        "OBPM": float(player["OBPM"]),
+        "DBPM": float(player["DBPM"]),
+        "BPM": float(player["BPM"]),
+        "VORP": float(player["VORP"]),
+        "FG": float(player["FG"]),
+        "FGA": float(player["FGA"]),
+        "treeP": float(player["treeP"]),
+        "treePA": float(player["treePA"]),
+        "twoP": float(player["twoP"]),
+        "twoPA": float(player["twoPA"]),
+        "eFG_rel": float(player["eFG_rel"]),
+        "FT": float(player["FT"]),
+        "FTA": float(player["FTA"]),
+        "ORB": float(player["ORB"]),
+        "DRB": float(player["DRB"]),
+        "TRB": float(player["TRB"]),
+        "AST": float(player["AST"]),
+        "STL": float(player["STL"]),
+        "BLK": float(player["BLK"]),
+        "TOV": float(player["TOV"]),
+        "PF": float(player["PF"]),
+        "PTS": float(player["PTS"]),
+        "weight": float(player["weight"]),
+        "height(inch)": float(player["height(inch)"]),
     }
 
 # CSV Reader Helper
@@ -97,7 +80,7 @@ def csv_to_json(filename, header=0):
 
 async def retrieve_allplayers():
     players = []
-    for player in seasons_collection.find():
+    for player in cleaned_collection.find():
         players.append(player_helper(player))
     return players
 
@@ -105,15 +88,19 @@ async def retrieve_allplayers():
 
 
 async def retrieve_player(id: str) -> dict:
-    player = await seasons_collection.find_one({"_id": ObjectId(id)})
+    player = cleaned_collection.find_one(
+        {"_id": ObjectId(id)})
     if player:
         return player_helper(player)
+    else:
+        return
 
 # Add a new players into to the database
 
 
 async def add_dataset(filename):
     # Push all dataset to MongoDB
+    # Convert to a switch case
     if filename == 'datasets/SeasonsDataRaw.csv':
         seasons_collection.insert_many(csv_to_json(filename))
 
@@ -129,13 +116,14 @@ async def add_dataset(filename):
 async def clean_dataset():
 
     # Connection to DB
-    collection_conn = db['Season_Dataset']
-    collection_cursor = collection_conn.find()
-    collection_nba_df = pd.DataFrame(list(collection_cursor))
-
+    #collection_conn = db['Season_Dataset']
+    #collection_cursor = collection_conn.find()
+    #collection_nba_df = pd.DataFrame(list(collection_cursor))
+    file_path = 'datasets/SeasonsDataRaw.csv'
+    collection_nba_df = pd.read_csv(file_path)
     # First drop columns
-    clean_df = collection_nba_df.drop(columns=[
-        'GS', 'Pos', 'position', 'year_end', 'college', 'birth_date', 'name', ])
+    clean_df = collection_nba_df.drop(
+        columns=['GS', 'Pos', 'position', 'year_end', 'college', 'birth_date', 'name'])
 
     # Drop
     b_df = pd.DataFrame(columns=clean_df.columns)
@@ -165,6 +153,9 @@ async def clean_dataset():
 
     #   Business rule
     b_df = b_df[b_df["G"] > 10]
+
+    # FASTAPI do not return if NaN
+    b_df.fillna(0)
 
     # Export to csv
     b_df.to_csv('datasets/SeasonsDataCleaned.csv', index=False)
