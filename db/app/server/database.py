@@ -15,8 +15,9 @@ db = client.players
 # Collection Name - Datasets
 seasons_collection = db.get_collection("Season_Dataset")
 cleaned_collection = db.get_collection("Cleaned_Dataset")
-# Collection Name - Players
-players_collection = db.get_collection("Player_Dataset")
+# Collection Name - ML
+pca_collection = db.get_collection("PCA_Dataset")
+timeseries_collection = db.get_collection("Timeseries_Dataset")
 
 
 # Helpers - Response JSON content from server

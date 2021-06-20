@@ -39,11 +39,11 @@ async def dataset(filename='datasets/SeasonsDataCleaned.csv'):
 async def cleaning(name='SeasonsDataRaw.csv'):
     filepath = 'datasets/' + name
     print(' === Cleaning the .CSV === ')
-    clean = await clean_dataset(filepath)
+    filepath_clean = await clean_dataset(filepath)
     print(' === Cleaning the .CSV - Completed === ')
     print(' === Dataset is loaded in Mongo DB === ')
-    print(clean)
-    await add_dataset(clean)
+    print(filepath_clean)
+    await add_dataset(filepath_clean)
     print(' === Dataset is loaded in Mongo DB - Completed ===')
     return {"Dataset is cleaned"}
 
