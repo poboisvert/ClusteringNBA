@@ -15,15 +15,7 @@ The analysis will aim to provide insight on the following questions:
 - [Kaggle Player Data](https://www.kaggle.com/drgilermo/nba-players-stats?select=player_data.csv)
   - A data [sample](ETL/Data/sample_data.xlsx) has been drafted.
 
-## Communication Protocols
-
-- **Slack**: Team discussions, questions, suggestisons & resource sharing.
-- **Google Meet**: Team meetings, discussions
-- **[Trello](https://trello.com/b/bpUG9Aoh/final-project-nba)**: Work organization, scheduling
-
-## Application Workflow
-
-### Virtual Environment
+## Environment
 
 > cd db && python3 -m venv env
 
@@ -47,19 +39,12 @@ The analysis will aim to provide insight on the following questions:
 
 > db.Cleaned_Dataset.find()
 
-### Database Integration
+### Team Project - UofT Bootcamp
 
-- This project will be using SQLite with SQLAlchemy for the database integration.
-- Click [**here**](Database/SQL_Database.ipynb) for details regarding the **Database Integration** for this analysis.
-- [ERD Diagram](Database/Resources/NBA_Analysis_ERD.png)
+## Communication Protocols
 
-### Machine Learning Model
+- **Slack**: Team discussions, questions, suggestisons & resource sharing.
+- **Google Meet**: Team meetings, discussions
+- **[Trello](https://trello.com/b/bpUG9Aoh/final-project-nba)**: Work organization, scheduling
 
-- Click [**here**](Machine_Learning/README.md) for details regarding the **Machine Learning model** for this analysis.
-- Click [**here**](Machine_Learning/NBA_PCA.ipynb) for Machine learning code details.
-
-### Data Visualization & Dashboard
-
-- This project will be using Tableau for visualizations & dashboards.
-- Click [**here**](Visualization/NBA_PLAYER_ANALYSIS.pptx) for details on ppt.
-- Click [**here**](https://public.tableau.com/app/profile/syed.ali.akbar/viz/NBAAnalysis_16232021658490/VORPbyPlayersandAge) to access Tableau visualizations
+Source: https://github.com/joshb738/NBA_Player_Analysis
