@@ -32,16 +32,18 @@ async def dataset(filename='datasets/SeasonsDataCleaned.csv'):
     return {custom, "Dataset is in MongoDB"}
 
 # ETL
+# https://testdriven.io/blog/fastapi-mongo/
 
 
 @ router.post("/etl/transform", response_description="All players retreived from the database")
 async def cleaning(name='SeasonsDataRaw.csv'):
     filepath = 'datasets/' + name
     print(' === Cleaning the .CSV === ')
-    await clean_dataset(filepath)
+    clean = await clean_dataset(filepath)
     print(' === Cleaning the .CSV - Completed === ')
     print(' === Dataset is loaded in Mongo DB === ')
-    await add_dataset('datasets/SeasonsDataCleaned.csv')
+    print(clean)
+    await add_dataset(clean)
     print(' === Dataset is loaded in Mongo DB - Completed ===')
     return {"Dataset is cleaned"}
 
