@@ -6,7 +6,8 @@ from app.server.database import (
     clean_dataset,
     retrieve_player,
     retrieve_allplayers,
-    get_pca
+    get_pca,
+    get_timeseries
 )
 from app.server.models.nba import (
     ErrorResponseModel,
@@ -68,12 +69,28 @@ async def get_players_data(id):
  # Machine Learning
 
 
-@ router.get("/ml", response_description="All data for ML retreived from the database")
+@ router.get("/ml/pca", response_description="All data for ML retreived from the database")
 async def get_pca_data():
     print(' === ML - Start === ')
     pca_result = await get_pca()
 
     # Load to Mongo DB after cleaning && ML
+    print(' === PCA DB - Start === ')
     await add_dataset(pca_result)
+    print(' === PCA DB - End === ')
+    print(' === ML - End === ')
+    return ResponseModel(pca_result, "ML PCA in Mongo DB created successfully.")
 
-    return ResponseModel(pca_result, "ML in Mongo DB created successfully.")
+
+@ router.get("/ml/timeseries", response_description="All data for ML retreived from the database")
+async def get_pca_data():
+    print(' === ML Timeseries - Start === ')
+    timeseries_result = await get_timeseries()
+
+    # Load to Mongo DB after cleaning && ML
+    print(' === ML Timeseries DB - End === ')
+    await add_dataset(timeseries_result)
+    print(' === ML Timeseries DB - End === ')
+    print(' === ML Timeseries - End === ')
+
+    return ResponseModel(timeseries_result, "ML Timeseries in Mongo DB created successfully.")

@@ -114,8 +114,11 @@ async def add_dataset(filename):
     if filename == 'datasets/SeasonsDataCleaned.csv':
         cleaned_collection.insert_many(csv_to_json(filename))
 
-    if filename == 'datasets/SeasonsDataCleanedML.csv':
+    if filename == 'datasets/SeasonsDataCleanedPCA.csv':
         pca_collection.insert_many(csv_to_json(filename))
+
+    if filename == 'datasets/SeasonsDataCleanedPCATS.csv':
+        timeseries_collection.insert_many(csv_to_json(filename))
 
     return filename
 
@@ -181,12 +184,13 @@ async def get_pca():
         a_df = pd.DataFrame(list(collection_cursor))
 
     except KeyError:
-        print("age is unknown.")
+        print("ERROR")
     # print(a_df)
 
     # Player columns
     player_name = pd.DataFrame(a_df['Player'])
 
+    # Drop to perfom model - business rule
     nba_drop_df = a_df.drop(['_id', 'Player', 'year_born', 'year_start',
                              'Status', 'OWS', 'DWS', 'WS', 'WSon48', 'VORP', 'PER'], axis=1)
 
@@ -259,5 +263,55 @@ async def get_pca():
             b_df = b_df.append(new_row, ignore_index=True)
 
     # Export to csv
-    b_df.to_csv('datasets/SeasonsDataCleanedML.csv', index=False)
-    return 'datasets/SeasonsDataCleanedML.csv'
+    b_df.to_csv('datasets/SeasonsDataCleanedPCA.csv', index=False)
+    return 'datasets/SeasonsDataCleanedPCA.csv'
+
+
+async def get_timeseries():
+
+    # Connection to DB
+    collection_conn = db['PCA_Dataset']
+    collection_cursor = collection_conn.find()
+    clusters_df = pd.DataFrame(list(collection_cursor))
+
+    clusters_df = clusters_df.drop(['_id'], axis=1)
+
+    improvements = []
+    regressions = []
+
+    # Loop accross clusters
+    for index, example in clusters_df.iterrows():
+
+        # To edit since at the moment we have 21 clusters
+        for i in range(1, 21):
+            # if no nan is cluster i ; cluster i + 1 ; clust i is not cluster i + 1 - last
+            if not pd.isna(example[f"Cluster {i}"]) and not pd.isna(example[f"Cluster {i+1}"]) and (example[f"Cluster {i}"] != example[f"Cluster {i+1}"]):
+                if example[f"VORP {i}"] > example[f"VORP {i+1}"]:
+                    # Save as int and a list - regressions
+                    regressions.append(
+                        (int(example[f"Cluster {i}"]), int(example[f"Cluster {i+1}"])))
+                else:
+                    # Save as int and a list - improvements
+                    improvements.append(
+                        (int(example[f"Cluster {i}"]), int(example[f"Cluster {i+1}"])))
+    print(improvements)
+
+    # Improvement to DF
+    improvements_list = dict(Counter(improvements))
+    improvements_df = pd.DataFrame({"Count": [x for x in list(improvements_list)], "Number": [
+                                   improvements_list[x] for x in list(improvements_list)]})
+
+    regressions_list = dict(Counter(regressions))
+    regressions_df = pd.DataFrame({"Count": [x for x in list(regressions_list)], "Number": [
+                                  regressions_list[x] for x in list(regressions_list)]})
+    merged_df = pd.merge(regressions_df, improvements_df,
+                         on='Count', how='outer')
+    merged_df.columns = ['Change', 'Regressions', 'Improvements']
+    merged_df = merged_df.fillna(0)
+    merged_df["Total"] = merged_df["Regressions"] + merged_df["Improvements"]
+    merged_df["Improvement Change %"] = merged_df["Improvements"] / \
+        merged_df["Total"] * 100
+
+    # Export to csv
+    merged_df.to_csv('datasets/SeasonsDataCleanedPCATS.csv', index=False)
+    return 'datasets/SeasonsDataCleanedPCATS.csv'
