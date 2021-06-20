@@ -274,8 +274,10 @@ async def get_timeseries():
     collection_cursor = collection_conn.find()
     clusters_df = pd.DataFrame(list(collection_cursor))
 
+    # Mongo DB to drop - Result from Export then Import
     clusters_df = clusters_df.drop(['_id'], axis=1)
 
+    # Array for storage
     improvements = []
     regressions = []
 
@@ -294,21 +296,27 @@ async def get_timeseries():
                     # Save as int and a list - improvements
                     improvements.append(
                         (int(example[f"Cluster {i}"]), int(example[f"Cluster {i+1}"])))
-    print(improvements)
 
     # Improvement to DF
     improvements_list = dict(Counter(improvements))
     improvements_df = pd.DataFrame({"Count": [x for x in list(improvements_list)], "Number": [
                                    improvements_list[x] for x in list(improvements_list)]})
-
+    # Regressions to DF
     regressions_list = dict(Counter(regressions))
     regressions_df = pd.DataFrame({"Count": [x for x in list(regressions_list)], "Number": [
                                   regressions_list[x] for x in list(regressions_list)]})
+    # Merge Improvement && Regressions
     merged_df = pd.merge(regressions_df, improvements_df,
                          on='Count', how='outer')
+    # Add naming
     merged_df.columns = ['Change', 'Regressions', 'Improvements']
+
+    # Fill na with 0 - Team decision
     merged_df = merged_df.fillna(0)
+    # Create a Total column
     merged_df["Total"] = merged_df["Regressions"] + merged_df["Improvements"]
+
+    # Create a Total Rel. column
     merged_df["Improvement Change %"] = merged_df["Improvements"] / \
         merged_df["Total"] * 100
 
