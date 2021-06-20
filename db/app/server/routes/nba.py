@@ -6,6 +6,7 @@ from app.server.database import (
     clean_dataset,
     retrieve_player,
     retrieve_allplayers,
+    get_pca
 )
 from app.server.models.nba import (
     ErrorResponseModel,
@@ -37,14 +38,20 @@ async def dataset(filename='datasets/SeasonsDataCleaned.csv'):
 
 @ router.post("/etl/transform", response_description="All players retreived from the database")
 async def cleaning(name='SeasonsDataRaw.csv'):
+
+    # Create the filepath
     filepath = 'datasets/' + name
+    # Clean the csv file
     print(' === Cleaning the .CSV === ')
     filepath_clean = await clean_dataset(filepath)
     print(' === Cleaning the .CSV - Completed === ')
     print(' === Dataset is loaded in Mongo DB === ')
     print(filepath_clean)
+
+    # Load to Mongo DB after cleaning
     await add_dataset(filepath_clean)
     print(' === Dataset is loaded in Mongo DB - Completed ===')
+
     return {"Dataset is cleaned"}
 
 
@@ -54,14 +61,19 @@ async def get_players_data():
     return ResponseModel(allplayers, "All players fetch successfully.")
 
 
-@ router.get("/players/{id}", response_description="All players retreived from the database")
+@ router.get("/players/{id}", response_description="Player ID retreived from the database")
 async def get_players_data(id):
     player = await retrieve_player(id)
-    return ResponseModel(player, "Player fetch successfully.")
+    return ResponseModel(player, "Player ID fetch successfully.")
  # Machine Learning
 
 
-@ router.get("/ml/{id}", response_description="All players retreived from the database")
-async def get_players_data(id):
-    player = await retrieve_player(id)
-    return ResponseModel(player, "Player fetch successfully.")
+@ router.get("/ml", response_description="All data for ML retreived from the database")
+async def get_pca_data():
+    print(' === ML - Start === ')
+    pca_result = await get_pca()
+
+    # Load to Mongo DB after cleaning && ML
+    await add_dataset(pca_result)
+
+    return ResponseModel(pca_result, "ML in Mongo DB created successfully.")
