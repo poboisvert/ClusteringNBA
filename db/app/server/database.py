@@ -3,6 +3,13 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+
+from collections import Counter
 
 # Init Mongo
 MONGO_DETAILS = "mongodb://localhost:27017"
@@ -107,18 +114,14 @@ async def add_dataset(filename):
     if filename == 'datasets/SeasonsDataCleaned.csv':
         cleaned_collection.insert_many(csv_to_json(filename))
 
-    if filename == 'datasets/PlayerDataRaw.csv':
-        players_collection.insert_many(csv_to_json(filename))
+    if filename == 'datasets/SeasonsDataCleanedML.csv':
+        pca_collection.insert_many(csv_to_json(filename))
 
     return filename
 
 
 async def clean_dataset(filepath):
 
-    # Connection to DB
-    #collection_conn = db['Season_Dataset']
-    #collection_cursor = collection_conn.find()
-    #collection_nba_df = pd.DataFrame(list(collection_cursor))
     # file_path = 'datasets/SeasonsDataRaw.csv'
     if filepath is None:
         return
@@ -166,3 +169,95 @@ async def clean_dataset(filepath):
     # print(collection_pandas_df)
     print(' === Max Pain 1.01 Completed - Cleaned === ')
     return 'datasets/SeasonsDataCleaned.csv'
+
+# Add a ML filtered data to DB
+
+
+async def get_pca():
+    try:
+        # Connection to DB
+        collection_conn = db['Cleaned_Dataset']
+        collection_cursor = collection_conn.find()
+        a_df = pd.DataFrame(list(collection_cursor))
+
+    except KeyError:
+        print("age is unknown.")
+    # print(a_df)
+
+    # Player columns
+    player_name = pd.DataFrame(a_df['Player'])
+
+    nba_drop_df = a_df.drop(['_id', 'Player', 'year_born', 'year_start',
+                             'Status', 'OWS', 'DWS', 'WS', 'WSon48', 'VORP', 'PER'], axis=1)
+
+    nba_scaled = StandardScaler().fit_transform(nba_drop_df)
+
+    variances = []
+    for n in range(1, nba_scaled.shape[1]):
+        pca = PCA(n_components=n)
+        pca.fit(nba_scaled)
+        variances.append(sum(pca.explained_variance_ratio_))
+
+    # Using PCA to reduce dimension to 10 principal components.
+    n_comp = 10
+
+    pca = PCA(n_components=n_comp)
+
+    nba_pca = pca.fit_transform(nba_scaled)
+
+    nba_pca
+
+    # Create New Dataframe with the princiapl components
+    pcs_df = pd.DataFrame(data=nba_pca, columns=[
+                          f'PC {x}' for x in range(n_comp)], index=player_name.index)
+
+    # Calculate the inertia for the range of K values
+    inertias = []
+    for k in range(1, 20):
+        model = KMeans(n_clusters=k, random_state=0)
+        model.fit(pcs_df)
+        inertias.append(model.inertia_)
+
+    secondDeriv = [0]
+    for i in range(1, 18):
+        secondDeriv.append(inertias[i+1] + inertias[i-1] - 2*inertias[i])
+    secondDeriv.append(0)
+
+    # Initialize the K-Means model.
+    model = KMeans(n_clusters=9, random_state=0)
+
+    # Fit the model
+    model.fit(pcs_df)
+
+    # Predict clusters
+    predictions = model.predict(pcs_df)
+
+    cluster_df = pd.DataFrame(predictions, columns=['cluster'])
+    cluster_vorp = cluster_df.join(a_df)
+    cluster_df = pd.DataFrame(predictions, columns=['cluster'])
+    cluster_ws = cluster_df.join(a_df)
+    a_df['cluster'] = model.labels_
+
+    # Create new df with correct column headers
+    cols = ["Player", "year_born"]
+    for i in range(1, 22):
+        cols.extend([f"Cluster {i}", f"VORP {i}", f"WS {i}"])
+    b_df = pd.DataFrame(columns=cols)
+
+    # Create loop that fills in the data from original df
+    for index, row in a_df.iterrows():
+        subset = a_df[(a_df["Player"] == row["Player"]) &
+                      (a_df["year_born"] == row["year_born"])]
+        if (subset["Player"].iloc[0], subset["year_born"].iloc[0]) not in zip(b_df["Player"], b_df["year_born"]):
+            new_row = {}
+            new_row["Player"] = subset["Player"].iloc[0]
+            new_row["year_born"] = subset["year_born"].iloc[0]
+            for index2, sub in subset.iterrows():
+                new_row[f"Cluster {sub['Status']}"] = sub["cluster"]
+                new_row[f"VORP {sub['Status']}"] = sub["VORP"]
+                new_row[f"WS {sub['Status']}"] = sub["WS"]
+            b_df = b_df.append(new_row, ignore_index=True)
+
+    # Export to csv
+    b_df.to_csv('datasets/SeasonsDataCleanedML.csv', index=False)
+    return 'datasets/SeasonsDataCleanedML.csv'
