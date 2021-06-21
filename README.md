@@ -23,7 +23,7 @@ The analysis will aim to provide insight on the following questions:
 
 > source env/bin/activate
 
-> v
+> pip install -r requirements.txt
 
 > cd db && export PYTHONPATH=$PWD
 
@@ -36,6 +36,16 @@ The analysis will aim to provide insight on the following questions:
 > source env/bin/activate
 
 > cd db && python app/main.py
+
+> http://localhost:8000/docs
+
+> Run /transformLoad
+
+> Run /ml/pca
+
+> Run /ml/timeseries
+
+Make sure Mongo is running
 
 ### Frontend - Plotly Dash
 
