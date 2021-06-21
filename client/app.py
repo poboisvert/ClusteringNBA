@@ -1,14 +1,13 @@
 
 import dash
-from dash.dependencies import Input, Output
 import dash_core_components as dcc
 import dash_html_components as html
+from dash.dependencies import Input, Output
+import plotly.express as px
 
-from pandas_datareader import data as web
-from datetime import datetime as dt
 import pandas as pd
-
 from pymongo import MongoClient
+
 
 # Init Mongo DB
 MONGO_DETAILS = "mongodb://localhost:27017"
@@ -19,43 +18,66 @@ client = MongoClient(MONGO_DETAILS)
 db = client.players
 
 # Collection Name - ML
-collection_conn = db['Cleaned_Dataset']
+collection_conn = db['Timeseries_Dataset']
 collection_cursor = collection_conn.find()
-a_df = pd.DataFrame(list(collection_cursor))
+df = pd.DataFrame(list(collection_cursor))
+# print(df)
 
-# print(a_df)
-
-app = dash.Dash('Clustering - Charts',
+# Init Dash and styling
+app = dash.Dash(__name__,
                 external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'])
+# Markdown
+markdown_text = html.Label('Multi-Select Dropdown'),
 
+markdown_text = '''
+Please select a cluster
+'''
+
+
+# Dash init layout
+colors = {
+    'background': '#111111',
+    'text': '#7FDBFF'
+}
 app.layout = html.Div([
+    # Generic HTML
+    html.H1(children='PCA Analysis - Scatter'),
+    # Div name
+    html.Div(id='display-value'),
+    # Dropdown
+    # html.Div(children='''Sentence test'''),
+    # Markdown
+    dcc.Markdown(children=markdown_text),
+    # Markdown
+
+    # html.Label('Dropdown'),
     dcc.Dropdown(
-        id='my-dropdown',
+        id='dropdown-select',
         options=[
-            {'label': 'Clustering', 'value': 'COKE'},
-            {'label': 'Timeseries', 'value': 'TSLA'}
+            {'label': 'Regressions', 'value': 'Regressions'},
+            {'label': 'Improvements', 'value': 'Improvements'},
+            {'label': 'Total', 'value': 'Total'},
         ],
-        value='COKE'
+        value='Timesseries options for analysis'
     ),
-    dcc.Graph(id='my-graph')
-], style={'width': '500'})
+    # Generate Graph
+    dcc.Graph(id='indicator-graphic'),
+])
 
 
-@app.callback(Output('my-graph', 'figure'), [Input('my-dropdown', 'value')])
-def update_graph(selected_dropdown_value):
-    df = web.DataReader(
-        selected_dropdown_value,
-        'yahoo',
-        dt(2017, 1, 1),
-        dt.now()
-    )
-    return {
-        'data': [{
-            'x': df.index,
-            'y': df.Close
-        }],
-        'layout': {'margin': {'l': 40, 'r': 0, 't': 20, 'b': 30}}
-    }
+@app.callback(
+    Output('indicator-graphic', 'figure'),
+    Input('dropdown-select', 'value'))
+# def display_value(value):
+#    return 'You have selected "{}"'.format(value)
+def update_figure(value):
+
+    fig = px.scatter(x=df[value],
+                     y=df['Change'])
+
+    return fig
+
+# https://dash.plotly.com/layout
 
 
 if __name__ == '__main__':

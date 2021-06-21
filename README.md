@@ -1,5 +1,7 @@
 # Clustering on NBA League From 2003 to 2018
 
+![preview](init).png)
+
 ## Project Overview
 
 Using unsupervised machine learning to analyze player decline in the NBA based on the player archetype.
@@ -25,9 +27,19 @@ The analysis will aim to provide insight on the following questions:
 
 > cd db && export PYTHONPATH=$PWD
 
+### Additional packages
+
+> pip freeze > requirements.txt
+
 ### FastAPI - Backend
 
+> source env/bin/activate
+
 > cd db && python app/main.py
+
+### Frontend - Plotly Dash
+
+> cd client && python app.py
 
 #### MongoDB
 
