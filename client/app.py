@@ -6,17 +6,34 @@ import dash_html_components as html
 
 from pandas_datareader import data as web
 from datetime import datetime as dt
+import pandas as pd
 
-app = dash.Dash('Hello World',
+from pymongo import MongoClient
+
+# Init Mongo DB
+MONGO_DETAILS = "mongodb://localhost:27017"
+
+client = MongoClient(MONGO_DETAILS)
+
+# Database Name
+db = client.players
+
+# Collection Name - ML
+collection_conn = db['Cleaned_Dataset']
+collection_cursor = collection_conn.find()
+a_df = pd.DataFrame(list(collection_cursor))
+
+# print(a_df)
+
+app = dash.Dash('Clustering - Charts',
                 external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'])
 
 app.layout = html.Div([
     dcc.Dropdown(
         id='my-dropdown',
         options=[
-            {'label': 'Coke', 'value': 'COKE'},
-            {'label': 'Tesla', 'value': 'TSLA'},
-            {'label': 'Apple', 'value': 'AAPL'}
+            {'label': 'Clustering', 'value': 'COKE'},
+            {'label': 'Timeseries', 'value': 'TSLA'}
         ],
         value='COKE'
     ),
@@ -42,4 +59,4 @@ def update_graph(selected_dropdown_value):
 
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(debug=True)
