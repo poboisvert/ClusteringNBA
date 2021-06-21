@@ -29,11 +29,13 @@ The analysis will aim to provide insight on the following questions:
 
 ### Additional packages
 
+> cd db
+
 > pip freeze > requirements.txt
 
 ### FastAPI - Backend
 
-> source env/bin/activate
+> cd db && source env/bin/activate
 
 > cd db && python app/main.py
 
@@ -48,6 +50,8 @@ The analysis will aim to provide insight on the following questions:
 Make sure Mongo is running
 
 ### Frontend - Plotly Dash
+
+> cd db && source env/bin/activate
 
 > cd client && python app.py
 
