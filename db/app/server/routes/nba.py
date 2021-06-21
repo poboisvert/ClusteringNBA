@@ -37,7 +37,7 @@ async def dataset(filename='datasets/SeasonsDataCleaned.csv'):
 # https://testdriven.io/blog/fastapi-mongo/
 
 
-@ router.post("/etl/transform", response_description="All players retreived from the database")
+@ router.post("/etl/transformLoad", response_description="All players retreived from the database")
 async def cleaning(name='SeasonsDataRaw.csv'):
 
     # Create the filepath
