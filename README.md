@@ -1,6 +1,6 @@
 # Clustering on NBA League From 2003 to 2018
 
-![preview](init).png)
+![preview](init.png)
 
 ## Project Overview
 
@@ -23,7 +23,7 @@ The analysis will aim to provide insight on the following questions:
 
 > source env/bin/activate
 
-> pip install -r requirements.txt
+> v
 
 > cd db && export PYTHONPATH=$PWD
 
