@@ -2,6 +2,7 @@
 import base64
 import datetime
 import io
+import requests
 
 import dash
 import dash_core_components as dcc
@@ -55,7 +56,7 @@ app.layout = html.Div([
     dcc.Upload(
         id='upload-data',
         children=html.Div([
-            'Drag and Drop or ',
+            'Drag and Drop (.csv only) or ',
             html.A('Select Files')
         ]),
         style={
@@ -78,7 +79,6 @@ app.layout = html.Div([
     # Markdown
     dcc.Markdown(children=markdown_text),
     # Markdown
-
     # html.Label('Dropdown'),
     dcc.Dropdown(
         id='dropdown-select',
@@ -104,6 +104,20 @@ def parse_contents(contents, filename, date):
             # Assume that the user uploaded a CSV file
             df = pd.read_csv(
                 io.StringIO(decoded.decode('utf-8')))
+
+            # Save to csv in db folder
+            df.to_csv('../db/datasets/SeasonsDataRaw.csv', index=False)
+
+            # Call API for PCA and ML
+            etl_load = requests.post('http://localhost:8000/api/etl/transformLoad')
+            print(etl_load)
+
+            ml_pca = requests.get('http://localhost:8000/api/ml/pca')
+            print(ml_pca)
+
+            ml_ts = requests.get('http://localhost:8000/api/ml/timeseries')
+            print(ml_ts)
+
         elif 'xls' in filename:
             # Assume that the user uploaded an excel file
             df = pd.read_excel(io.BytesIO(decoded))
@@ -131,7 +145,7 @@ def parse_contents(contents, filename, date):
             'wordBreak': 'break-all'
         })
     ])
-
+# Graph
 @app.callback(
     Output('indicator-graphic', 'figure'),
     Input('dropdown-select', 'value'))
@@ -143,7 +157,7 @@ def update_figure(value):
                      y=df['Change'])
 
     return fig
-
+# upload
 @app.callback(Output('output-data-upload', 'children'),
               Input('upload-data', 'contents'),
               State('upload-data', 'filename'),
