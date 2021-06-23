@@ -171,7 +171,8 @@ async def clean_dataset(filepath):
     b_df.to_csv('datasets/SeasonsDataCleaned.csv', index=False)
 
     # print(collection_pandas_df)
-    print(' === Max Pain 1.01 Completed - Cleaned === ')
+    print(' === Max Pain 1.01 - Cleaned === ')
+
     return 'datasets/SeasonsDataCleaned.csv'
 
 # Add a ML filtered data to DB
@@ -209,8 +210,6 @@ async def get_pca():
     pca = PCA(n_components=n_comp)
 
     nba_pca = pca.fit_transform(nba_scaled)
-
-    nba_pca
 
     # Create New Dataframe with the princiapl components
     pcs_df = pd.DataFrame(data=nba_pca, columns=[

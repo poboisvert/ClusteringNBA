@@ -46,12 +46,12 @@ async def cleaning(name='SeasonsDataRaw.csv'):
     print(' === Cleaning the .CSV === ')
     filepath_clean = await clean_dataset(filepath)
     print(' === Cleaning the .CSV - Completed === ')
-    print(' === Dataset is loaded in Mongo DB === ')
-    print(filepath_clean)
+    # print(filepath_clean)
 
     # Load to Mongo DB after cleaning
+    print(' === TransformLoad DB - Start === ')
     await add_dataset(filepath_clean)
-    print(' === Dataset is loaded in Mongo DB - Completed ===')
+    print(' === TransformLoad DB - End === ')
 
     return {"Dataset is cleaned"}
 
@@ -71,14 +71,14 @@ async def get_players_data(id):
 
 @ router.get("/ml/pca", response_description="All data for ML retreived from the database")
 async def get_pca_data():
-    print(' === ML - Start === ')
+    print(' === ML PCA - Start === ')
     pca_result = await get_pca()
+    print(' === ML PCA - End === ')
 
     # Load to Mongo DB after cleaning && ML
     print(' === PCA DB - Start === ')
     await add_dataset(pca_result)
     print(' === PCA DB - End === ')
-    print(' === ML - End === ')
     return ResponseModel(pca_result, "ML PCA in Mongo DB created successfully.")
 
 
@@ -86,11 +86,11 @@ async def get_pca_data():
 async def get_pca_data():
     print(' === ML Timeseries - Start === ')
     timeseries_result = await get_timeseries()
+    print(' === ML Timeseries - End === ')
 
     # Load to Mongo DB after cleaning && ML
     print(' === ML Timeseries DB - End === ')
     await add_dataset(timeseries_result)
     print(' === ML Timeseries DB - End === ')
-    print(' === ML Timeseries - End === ')
 
     return ResponseModel(timeseries_result, "ML Timeseries in Mongo DB created successfully.")
