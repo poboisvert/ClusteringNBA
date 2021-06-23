@@ -37,6 +37,8 @@ The analysis will aim to provide insight on the following questions:
 
 > cd db && source env/bin/activate
 
+> cd db && export PYTHONPATH=$PWD
+
 > cd db && python app/main.py
 
 > http://localhost:8000/docs
