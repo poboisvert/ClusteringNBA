@@ -71,7 +71,6 @@ app.layout = html.Div([
         # Allow multiple files to be uploaded
         multiple=True
     ),
-    html.Div(id='output-data-upload'),    
     # Styling line
     html.Hr(),
     # Dropdown
@@ -92,6 +91,7 @@ app.layout = html.Div([
     ),
     # Generate Graph
     dcc.Graph(id='indicator-graphic'),
+    html.Div(id='output-data-upload'),    
 ])
 
 # Upload parse component
