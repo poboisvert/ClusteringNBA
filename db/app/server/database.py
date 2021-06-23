@@ -154,6 +154,7 @@ async def clean_dataset(filepath):
     b_df['inch'] = b_df.height.str.split('-').str[1].astype(np.float)
 
     # Combine measurements in new column "height(inch)"
+    # you might run into issues where b_df.feet is not numeric. It'll depend on the flow of the logic, but keep this in mind
     b_df["height(inch)"] = b_df.feet+b_df.inch
 
     # Drop the columns used for calculation, blanks and repetitive data
@@ -164,7 +165,7 @@ async def clean_dataset(filepath):
     b_df = b_df[b_df["G"] > 10]
 
     # FASTAPI do not return if NaN
-    b_df.fillna(0)
+    b_df.fillna(0, inplace=True)
 
     # Export to csv
     b_df.to_csv('datasets/SeasonsDataCleaned.csv', index=False)
@@ -178,13 +179,13 @@ async def clean_dataset(filepath):
 
 async def get_pca():
     try:
-        # Connection to DB
-        collection_conn = db['Cleaned_Dataset']
-        collection_cursor = collection_conn.find()
-        a_df = pd.DataFrame(list(collection_cursor))
-
+            # Connection to DB
+            collection_conn = db['Cleaned_Dataset']
+            collection_cursor = collection_conn.find()
+            a_df = pd.DataFrame(list(collection_cursor))
     except KeyError:
-        print("ERROR")
+            print("ERROR")
+            return ''
     # print(a_df)
 
     # Player columns
