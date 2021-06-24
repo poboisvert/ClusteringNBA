@@ -57,6 +57,8 @@ Make sure Mongo is running
 
 > cd client && python app.py
 
+Upload the file "TO_UPLOAD_FULL_SeasonsDataRaw" for a full test.
+
 #### MongoDB
 
 > mongo

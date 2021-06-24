@@ -91,6 +91,11 @@ app.layout = html.Div([
     ),
     # Generate Graph
     dcc.Graph(id='indicator-graphic'),
+    dcc.Interval(
+            id='interval-component',
+            interval=4*1000, # in milliseconds
+            n_intervals=0
+        ),
     html.Div(id='output-data-upload'),    
 ])
 
@@ -146,17 +151,56 @@ def parse_contents(contents, filename, date):
         })
     ])
 # Graph
-@app.callback(
-    Output('indicator-graphic', 'figure'),
-    Input('dropdown-select', 'value'))
+
 # def display_value(value):
 #    return 'You have selected "{}"'.format(value)
-def update_figure(value):
 
-    fig = px.scatter(x=df[value],
+
+@app.callback(Output('indicator-graphic', 'figure'),
+              Input('interval-component', 'n_intervals'),
+              Input('dropdown-select', 'value'))
+
+def update_graph_live(n, value):
+    # Init Mongo DB
+    MONGO_DETAILS = "mongodb://localhost:27017"
+
+    client = MongoClient(MONGO_DETAILS)
+
+    # Database Name
+    db = client.players
+
+    # Collection Name - ML
+    collection_conn = db['Timeseries_Dataset']
+    collection_cursor = collection_conn.find()
+    df = pd.DataFrame(list(collection_cursor))
+
+    try:
+        fig = px.scatter(x=df[value],
                      y=df['Change'])
+        return fig
+    except KeyError:
+        return {
+                "layout": {
+                    "xaxis": {
+                        "visible": False
+                    },
+                    "yaxis": {
+                        "visible": False
+                    },
+                    "annotations": [
+                        {
+                            "text": "No matching data found",
+                            "xref": "paper",
+                            "yref": "paper",
+                            "showarrow": False,
+                            "font": {
+                                "size": 28
+                            }
+                        }
+                    ]
+                }
+            }
 
-    return fig
 # upload
 @app.callback(Output('output-data-upload', 'children'),
               Input('upload-data', 'contents'),

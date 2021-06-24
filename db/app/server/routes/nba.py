@@ -89,7 +89,7 @@ async def get_pca_data():
     print(' === ML Timeseries - End === ')
 
     # Load to Mongo DB after cleaning && ML
-    print(' === ML Timeseries DB - End === ')
+    print(' === ML Timeseries DB - Start === ')
     await add_dataset(timeseries_result)
     print(' === ML Timeseries DB - End === ')
 
